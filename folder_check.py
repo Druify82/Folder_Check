@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 # Die Shebang-Zeile legt am Dokumentanfang unabhängig vom Betriebssystem fest,
 # dass dieses Skript mit Python 3 ausgeführt werden soll.
 
@@ -35,6 +36,8 @@ Erklärungen zu argparse und Verbindung zu count_files:
 import os
 import argparse
 
+# Zunächst werden Funktionen definiert, die in diesem Script benötigt werden.
+
 
 def countfiles(countfiles_path: str) -> int:
     """
@@ -68,19 +71,29 @@ def countdirs(countdirs_path: str) -> int:
     return totaldirs
 
 
-def main():
+def parse_cmdline() -> argparse.Namespace:
+    # Die obige Definition besagt: Die Klasse nimmt keine Eingaben. Die Ausgabe
+    # ist ein Namespace-Objekt. Darin sind die eingegebenen Argumente
+    # enthalten, die der Benutzer eingegeben hat. Deshalb wird später nicht die
+    # Funktion gestartet, sondern eine Variable befüllt.
     """
-    Hauptfunktion des Skripts, die die Kommandozeilenargumente parst und die
-    Zählfunktionen aufruft.
-    Diese Funktion ist der Einstiegspunkt des Skripts. Sie wird aufgerufen,
-    wenn das Skript direkt ausgeführt wird.
-    Sie konfiguriert den ArgumentParser, um die Kommandozeilenargumente zu
-    akzeptieren, und ruft die Zählfunktionen auf, um die Anzahl der Dateien
-    und Ordner im angegebenen Pfad zu zählen.
-    :return: None
+    CLI-Grundgerüst mit argparse als eigene Funktion
+    Diese Funktion erstellt einen ArgumentParser, der die
+    Kommandozeilenargumente für das Skript verarbeitet. Sie definiert die
+    erwarteten Argumente und gibt ein Namespace-Objekt zurück, das die
+    geparsten Argumente enthält.
+    :return: argparse.Namespace: Ein Namespace-Objekt, das die geparsten
+    Kommandozeilenargumente enthält.
+    Diese Funktion wird aufgerufen, um die Kommandozeilenargumente zu parsen
+    und zurückzugeben, damit sie in der main-Funktion verwendet werden können.
+    Sie ist dafür verantwortlich, die Eingaben des Benutzers zu verarbeiten und
+    die entsprechenden Argumente zu definieren, die das Skript akzeptiert.
+    Diese Funktion ist wichtig, um die Eingaben des Benutzers zu verarbeiten
+    und die entsprechenden Argumente zu definieren, die das Skript akzeptiert.
+    Sie ermöglicht es dem Skript, flexibel auf verschiedene Eingaben zu
+    reagieren und die gewünschten Informationen zu liefern, wie z.B. die Anzahl
+    der Dateien und Ordner im angegebenen Pfad.
     """
-
-    # CLI-Grundgerüst mit argparse
     # Erstellen des ArgumentParsers
     # main_parser ist der Parser für die Kommandozeilenargumente. Hier
     # wird das Skript konfiguriert, um Eingaben von der Kommandozeile zu
@@ -110,7 +123,7 @@ def main():
         # nargs: Numer of arguments legt fest, wie viele Eingaben zum Argument
         # gehören
         nargs='?',
-        help="Pfad zum zu analysierenden Ordner"
+        help="Pfad zum zu analysierenden Ordner. Standard: aktueller Ordner"
     )
     # Optional: Nur Ordner anzeigen
     parser.add_argument(
@@ -124,7 +137,7 @@ def main():
         # Wenn das Flag nicht gesetzt ist, wird die Anzahl der Dateien gezählt.
         dest="dirs",
         action="store_true",
-        help="Zusätzlich Ordner zählen"
+        help="Nur Ordner zählen"
     )
 
     # Eingaben parsen:
@@ -135,7 +148,38 @@ def main():
     # Wenn die Eingaben gültig sind, werden sie in main_args gespeichert.
     # Wenn die Eingaben ungültig sind, wird eine Fehlermeldung ausgegeben und
     # das Programm beendet.
-    args = parser.parse_args()
+    # Dies wird nun mit return gemacht, damit die Funktion parse_cmdline
+    # aufgerufen werden kann, um die Argumente zu parsen und zurückzugeben.
+    # parser.parse_args() gibt ein Namespace-Objekt zurück, das die Argumente
+    # enthält, die vom Benutzer eingegeben wurden.
+    # args = parser.parse_args() würde die Argumente parsen und in der
+    # Variable args speichern, aber wir wollen die Argumente in der Funktion
+    # parse_cmdline zurückgeben, damit sie in der main-Funktion verwendet
+    # werden können.
+    # Daher wird hier return verwendet, um die Argumente zurückzugeben.
+    # Wenn
+    # die Funktion parse_cmdline aufgerufen wird, werden die Argumente geparst
+    # und in einem Namespace-Objekt gespeichert, das dann in der main-Funktion
+    # verwendet werden kann.
+    # parser.parse_args() gibt ein Namespace-Objekt zurück, das die Argumente
+    # enthält, die vom Benutzer eingegeben wurden.
+    # args = parser.parse_args()
+    # Stattdessen die Ausgabe dieser Funktion aktivieren.
+    return parser.parse_args()
+
+
+def print_stats():
+    """
+    Ausgabefunktion
+    Diese Funktion gibt die Statistiken der gezählten Dateien und Ordner aus.
+    Sie wird aufgerufen, um die Ergebnisse der Zählung anzuzeigen.
+    """
+    # Da wir hier die Ausgabe des Parsers brauchen, befüllen wir eine Variable
+    # mit dem Namespace. Man ruft hier also nicht die Funktion selbst auf.
+    args = parse_cmdline()
+    # TODO: Commit, wenn Dictionary Print umgesetzt ist.
+    # Ruft die Zählfunktionen auf, um die Anzahl der Dateien und Ordner im
+    # angegebenen Pfad zu zählen.
 
     # Zählfunktion aufrufen
     main_totalfiles = countfiles(args.path)
@@ -151,6 +195,18 @@ def main():
         print(f"Anzahl Dateien unter '{args.path}': {main_totalfiles}")
 
 
+def main():
+    """
+    Hauptfunktion des Skripts, die die Kommandozeilenargumente parst und die
+    Zählfunktionen aufruft.
+    Diese Funktion ist der Einstiegspunkt des Skripts. Sie wird aufgerufen,
+    wenn das Skript direkt ausgeführt wird.
+    """
+    print_stats()
+
+
+# Ende der Funktionsdefinitionen: Hier werden sie nun ausgeführt, ausgehend von
+# main(), das die anderen Funktionen aufruft.
 # Hauptfunktion aufrufen, wenn das Skript direkt ausgeführt wird
 # Dies ist der Einstiegspunkt des Skripts. Wenn das Skript direkt ausgeführt
 # wird, wird die main-Funktion aufgerufen, um die Argumente zu parsen und die
