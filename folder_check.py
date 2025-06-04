@@ -4,8 +4,8 @@
 
 """
 foldercheck.py – Einsteiger-Skript für FolderCheck
-Version: 0.1, 2025-05-28, 15:00
-Kurzbeschreibung: Phase 1: Dateien und Ordner zählen, Grundgerüst für CLI
+Version: 0.2.0, 2025-06-04, 17:53
+Kurzbeschreibung: Phase 2: Ausgabe-Modularisierung, Einführung Git
 Autor: Druify, <waschmasche@gmail.com>
 Co-Autor: Künstliche Intelligenz: ChatGPT, <https://chat.openai.com/chat>
 Copyright (c) 2025 Druify
