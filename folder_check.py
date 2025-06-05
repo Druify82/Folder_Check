@@ -176,23 +176,51 @@ def print_stats():
     """
     # Da wir hier die Ausgabe des Parsers brauchen, befüllen wir eine Variable
     # mit dem Namespace. Man ruft hier also nicht die Funktion selbst auf.
+    # Wäre der Parser ein Teil der Funktion, so wäre dieser Schritt nicht
+    # nötig.
     args = parse_cmdline()
-    # TODO: Commit, wenn Dictionary Print umgesetzt ist.
     # Ruft die Zählfunktionen auf, um die Anzahl der Dateien und Ordner im
     # angegebenen Pfad zu zählen.
 
-    # Zählfunktion aufrufen
-    main_totalfiles = countfiles(args.path)
-    main_totaldirs = countdirs(args.path)
-    # Ausgabe der Anzahl der Dateien und Ordner je nach Angabe von -d
+    # Dictionary für Zählungen
+    # Die Schlüssel sind die Namen der Statistiken, die Werte sind Tupel mit
+    # dem Text und der Anzahl.
+    # Die Tupel enthalten den Text, der ausgegeben werden soll, und die Anzahl
+    # der Dateien bzw. Ordner, die gezählt wurden.
+    # Diese Form des Dictionaries hat mehrere Vorteile:
+    # 1. Es ist einfach, die Statistiken zu erweitern, indem
+    # neue Schlüssel-Wert-Paare hinzugefügt werden.
+    # 2. Es ist einfach, die Statistiken zu iterieren und auszugeben.
+    # 3. Es ist einfach, die Statistiken zu formatieren und auszugeben.
+    # 4. Es ist einfach, die Statistiken zu sortieren, wenn nötig.
+    # 5. Es ist einfach, die Statistiken zu erweitern, indem neue
+    # Schlüssel-Wert-Paare hinzugefügt werden.
+    # Nachteile:
+    # 1. Es ist etwas komplexer als eine einfache Liste.
+    # 2. Es ist etwas weniger performant als eine einfache Liste, da es
+    #    ein Dictionary ist.
+    stats = {
+        "stats_files": ("Anzahl Dateien ", countfiles(args.path)),
+        "stats_dirs": ("Anzahl Ordner", countdirs(args.path))
+    }
+    # Ausgabe der Ergebnisse
     # main_totalfiles enthält die Anzahl der Dateien, die von count_files
     # zurückgegeben wurde.
     # Die Ausgabe erfolgt in der Konsole.
     if args.dirs:
-        print(f"Anzahl Ordner unter '{args.path}': {main_totaldirs}")
+        # Beispiel für einen f-String, der nicht auf eine Code-zeile passt.
+        print(
+            f'{stats["stats_dirs"][0]} in "{args.path}": '
+            f'{stats["stats_dirs"][1]}'
+        )
     else:
-        print(f"Anzahl Ordner unter '{args.path}': {main_totaldirs}")
-        print(f"Anzahl Dateien unter '{args.path}': {main_totalfiles}")
+        # Eine einfachere Form wäre die folgende:
+        # for key in stats:
+        #     stats_text, stats_count = stats[key]
+        # Um gleich das ganze Tupel zu iterieren, ist die folgende
+        # Schreibweise besser.
+        for _key, (stats_text, stats_count) in stats.items():
+            print(f'{stats_text} in "{args.path}": {stats_count}')
 
 
 def main():
