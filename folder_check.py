@@ -100,9 +100,12 @@ def parse_cmdline() -> argparse.Namespace:
     # akzeptieren.
     parser = argparse.ArgumentParser(
         # Beschreibung des Skripts
-        description="FolderCheck Phase 1: Zählt Dateien in einem Ordner und \
-        Unterordnern"
+        description='FolderCheck Phase 2: Statistiken für Ordner und '
+        'Unterordner \n\n'
+        'Ohne Parameter: Zeigt alle verfügbaren Statistiken für den aktuellen '
+        'Ordner an.\n'
     )
+    # Der ArgumentParser ist ein Objekt, das die Kommandozeilenargumente
     # Hinzufügen des Arguments --path bzw. -p
     # main_parser wird nun schrittweise konfiguriert, um Eingaben von der
     # Kommandozeile zu akzeptieren.
@@ -138,6 +141,21 @@ def parse_cmdline() -> argparse.Namespace:
         dest="dirs",
         action="store_true",
         help="Nur Ordner zählen"
+    )
+    # Nur Dateien zählen
+    parser.add_argument(
+        "--files", "-f",
+        # action="store_true": standardmäßig ist das Flag gesetzt
+        # Wenn Flag angegeben wird, main_args.dirs auf True, andernfalls setze
+        # es auf False.
+        # Dies ist nützlich, um zu entscheiden, ob nur Ordner oder auch Dateien
+        # gezählt werden sollen.
+        # Wenn das Flag gesetzt ist, wird die Anzahl der Dateien gezählt.
+        # Wenn das Flag nicht gesetzt ist, werden alle Werte der Statistik
+        # abgefragt.
+        dest="files",
+        action="store_true",
+        help="Nur Dateien  zählen"
     )
 
     # Eingaben parsen:
@@ -207,11 +225,17 @@ def print_stats():
     # main_totalfiles enthält die Anzahl der Dateien, die von count_files
     # zurückgegeben wurde.
     # Die Ausgabe erfolgt in der Konsole.
+    # TODO: if-Schleifen ersetzen durch Boolean-Abfrage
     if args.dirs:
         # Beispiel für einen f-String, der nicht auf eine Code-zeile passt.
         print(
             f'{stats["stats_dirs"][0]} in "{args.path}": '
             f'{stats["stats_dirs"][1]}'
+        )
+    if args.files:
+        print(
+            f'{stats["stats_files"][0]} in "{args.path}": '
+            f'{stats["stats_files"][1]}'
         )
     else:
         # Eine einfachere Form wäre die folgende:
