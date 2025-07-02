@@ -20,7 +20,7 @@ Funktionen:
 - CLI-Grundgerüst mit argparse:
   - Optionales Positionsargument [path], ansonsten aktueller Ordner
 
-Erklärungen zu argparse und Verbindung zu count_files:
+Erklärungen zu argparse und Verbindung zu countfiles:
 - argparse ist ein Modul, das es ermöglicht, Kommandozeilenargumente zu parsen
   und zu verarbeiten.
 - Es wird verwendet, um dem Skript die Möglichkeit zu geben, Eingaben von der
@@ -33,8 +33,15 @@ Erklärungen zu argparse und Verbindung zu count_files:
 
 
 # Diese Module werden benötigt.
+# Funktionen für Statistikerstellung aus Betriebssystem
 import os
+# parse_cmdline: Interpretation der Befehlszeile regeln
 import argparse
+
+# printstats: Global das Wörterbuch mit verschachtelter Liste und enthaltenen
+# Typen beschreiben
+StatsType = dict[str, list[str | int | bool]]
+
 
 # Zunächst werden Funktionen definiert, die in diesem Script benötigt werden.
 
@@ -46,15 +53,15 @@ def countfiles(countfiles_path: str) -> int:
     :param countfiles_path, str: Pfad (String) zum zu analysierenden Ordner
     :return -> int: Anzahl Integer/Ganzzahl) der gefundenen Dateien
     """
-    totalfiles = 0
+    countfiles_value = 0
     # os muss als übergeordnetes Modul mit der Methode walk benannt werden
     # Da wir die Variablen root und dirs nicht benutzen, schreiben wir einen
     # Unterstrich davor oder lassen den Namen ganz weg.
     for _, _, files in os.walk(countfiles_path):
         # 0 + len(files) gibt Anzahl der Dateien in der Liste files zurück
         # os.walk gibt ein Tupel zurück: (root, dirs, files)
-        totalfiles += len(files)
-    return totalfiles
+        countfiles_value += len(files)
+    return countfiles_value
 
 
 def countdirs(countdirs_path: str) -> int:
@@ -64,11 +71,11 @@ def countdirs(countdirs_path: str) -> int:
     :param countdirs_path, str: Pfad (String) zum zu analysierenden Ordner
     :return -> int: Anzahl Integer/Ganzzahl) der gefundenen Dateien
     """
-    totaldirs = 0
+    countdirs_value = 0
     for _, dirs, _ in os.walk(countdirs_path):
         # 0 + len gibt Anzahl der ordner in der Liste dirs zurück
-        totaldirs += len(dirs)
-    return totaldirs
+        countdirs_value += len(dirs)
+    return countdirs_value
 
 
 def parse_cmdline() -> argparse.Namespace:
@@ -95,7 +102,7 @@ def parse_cmdline() -> argparse.Namespace:
     der Dateien und Ordner im angegebenen Pfad.
     """
     # Erstellen des ArgumentParsers
-    # main_parser ist der Parser für die Kommandozeilenargumente. Hier
+    # parser ist der Parser für die Kommandozeilenargumente. Hier
     # wird das Skript konfiguriert, um Eingaben von der Kommandozeile zu
     # akzeptieren.
     parser = argparse.ArgumentParser(
@@ -107,7 +114,7 @@ def parse_cmdline() -> argparse.Namespace:
     )
     # Der ArgumentParser ist ein Objekt, das die Kommandozeilenargumente
     # Hinzufügen des Arguments --path bzw. -p
-    # main_parser wird nun schrittweise konfiguriert, um Eingaben von der
+    # parser wird nun schrittweise konfiguriert, um Eingaben von der
     # Kommandozeile zu akzeptieren.
     parser.add_argument(
         # Der erste string legt fest, dass der Wert in main_args.path
@@ -132,7 +139,7 @@ def parse_cmdline() -> argparse.Namespace:
     parser.add_argument(
         "--directories", "-d",
         # action="store_true": standardmäßig ist das Flag gesetzt
-        # Wenn Flag angegeben wird, main_args.dirs auf True, andernfalls setze
+        # Wenn Flag angegeben wird, args.dirs auf True, andernfalls setze
         # es auf False.
         # Dies ist nützlich, um zu entscheiden, ob nur Ordner oder auch Dateien
         # gezählt werden sollen.
@@ -146,7 +153,7 @@ def parse_cmdline() -> argparse.Namespace:
     parser.add_argument(
         "--files", "-f",
         # action="store_true": standardmäßig ist das Flag gesetzt
-        # Wenn Flag angegeben wird, main_args.dirs auf True, andernfalls setze
+        # Wenn Flag angegeben wird, args.dirs auf True, andernfalls setze
         # es auf False.
         # Dies ist nützlich, um zu entscheiden, ob nur Ordner oder auch Dateien
         # gezählt werden sollen.
@@ -157,7 +164,6 @@ def parse_cmdline() -> argparse.Namespace:
         action="store_true",
         help="Nur Dateien  zählen"
     )
-
     # Eingaben parsen:
     # args wird ein Namespace-Objekt, das die Argumente enthält
     # die vom Benutzer eingegeben wurden.
@@ -170,41 +176,46 @@ def parse_cmdline() -> argparse.Namespace:
     # aufgerufen werden kann, um die Argumente zu parsen und zurückzugeben.
     # parser.parse_args() gibt ein Namespace-Objekt zurück, das die Argumente
     # enthält, die vom Benutzer eingegeben wurden.
-    # args = parser.parse_args() würde die Argumente parsen und in der
+    # args = parser.args() würde die Argumente parsen und in der
     # Variable args speichern, aber wir wollen die Argumente in der Funktion
-    # parse_cmdline zurückgeben, damit sie in der main-Funktion verwendet
+    # parse_cmdline zurückgeben, damit sie in anderen Funktion verwendet
     # werden können.
     # Daher wird hier return verwendet, um die Argumente zurückzugeben.
-    # Wenn
-    # die Funktion parse_cmdline aufgerufen wird, werden die Argumente geparst
-    # und in einem Namespace-Objekt gespeichert, das dann in der main-Funktion
-    # verwendet werden kann.
-    # parser.parse_args() gibt ein Namespace-Objekt zurück, das die Argumente
-    # enthält, die vom Benutzer eingegeben wurden.
+    # Wenn die Funktion parse_cmdline aufgerufen wird, werden die Argumente
+    # geparst und in einem Namespace-Objekt gespeichert, das dann in einer
+    # anderen Funktion verwendet werden kann.
+    # parser.args() gibt ein Namespace-Objekt zurück, das die Argumente
+    # enthält, die vom Benutzer eingegeben wurden oder die voreingestellt sind.
+    # Die lange Variante wäre:
     # args = parser.parse_args()
-    # Stattdessen die Ausgabe dieser Funktion aktivieren.
+    # return args
+    # Die kurze Variante ist:
     return parser.parse_args()
 
 
-def print_stats():
+def print_stats() -> None:
     """
     Ausgabefunktion
     Diese Funktion gibt die Statistiken der gezählten Dateien und Ordner aus.
     Sie wird aufgerufen, um die Ergebnisse der Zählung anzuzeigen.
     """
+    # Da momentan die Pfadangabe aus der Kommandozeile kommt, muss zuerst der
+    # Parser aufgerufen werden.
     # Da wir hier die Ausgabe des Parsers brauchen, befüllen wir eine Variable
     # mit dem Namespace. Man ruft hier also nicht die Funktion selbst auf.
     # Wäre der Parser ein Teil der Funktion, so wäre dieser Schritt nicht
     # nötig.
     args = parse_cmdline()
-    # Ruft die Zählfunktionen auf, um die Anzahl der Dateien und Ordner im
-    # angegebenen Pfad zu zählen.
-
+    # Dictionary ruft die Zählfunktionen auf, um die Anzahl der Dateien und
+    # Ordner im angegebenen Pfad zu zählen.
     # Dictionary für Zählungen
     # Die Schlüssel sind die Namen der Statistiken, die Werte sind Tupel mit
     # dem Text und der Anzahl.
     # Die Tupel enthalten den Text, der ausgegeben werden soll, und die Anzahl
     # der Dateien bzw. Ordner, die gezählt wurden.
+    # Die Werte sind Listen, die den Status der Statistik enthalten.
+    # Die Listen enthalten alle Werte, die veränderlich bleiben müssen.
+    # angezeigt werden soll oder nicht.
     # Diese Form des Dictionaries hat mehrere Vorteile:
     # 1. Es ist einfach, die Statistiken zu erweitern, indem
     # neue Schlüssel-Wert-Paare hinzugefügt werden.
@@ -217,37 +228,41 @@ def print_stats():
     # 1. Es ist etwas komplexer als eine einfache Liste.
     # 2. Es ist etwas weniger performant als eine einfache Liste, da es
     #    ein Dictionary ist.
-    stats = {
-        "stats_files": ("Anzahl Dateien ", countfiles(args.path)),
-        "stats_dirs": ("Anzahl Ordner", countdirs(args.path))
+    # 3. Aber: Man kann eine Liste für die Werte verwenden, die man
+    #    nachträglich ändern möchte.
+    # Alias: ein Dictionary von str,→ Liste aus str | int | bool
+    # Standard wäre: stats = {, hier aber um Beschreibung erweitert.
+    stats: StatsType = {
+        "stats_files": ["Anzahl Dateien", countfiles(args.path), False],
+        "stats_dirs": ["Anzahl Ordner", countdirs(args.path), False]
     }
     # Ausgabe der Ergebnisse
-    # main_totalfiles enthält die Anzahl der Dateien, die von count_files
-    # zurückgegeben wurde.
     # Die Ausgabe erfolgt in der Konsole.
-    # TODO: if-Schleifen ersetzen durch Boolean-Abfrage
+    # Teil 1: Statistikausgabe vorbereiten, gewünschte Einträge auf True
     if args.dirs:
-        # Beispiel für einen f-String, der nicht auf eine Code-zeile passt.
-        print(
-            f'{stats["stats_dirs"][0]} in "{args.path}": '
-            f'{stats["stats_dirs"][1]}'
-        )
+        stats["stats_dirs"][2] = True
     if args.files:
-        print(
-            f'{stats["stats_files"][0]} in "{args.path}": '
-            f'{stats["stats_files"][1]}'
-        )
-    else:
-        # Eine einfachere Form wäre die folgende:
-        # for key in stats:
-        #     stats_text, stats_count = stats[key]
-        # Um gleich das ganze Tupel zu iterieren, ist die folgende
-        # Schreibweise besser.
-        for _key, (stats_text, stats_count) in stats.items():
-            print(f'{stats_text} in "{args.path}": {stats_count}')
+        stats["stats_files"][2] = True
+    if not (args.files or args.dirs):
+        stats["stats_dirs"][2] = True
+        stats["stats_files"][2] = True
+    # Teil 2: Ausgabe aller Einträge mit True
+    # Dies bleibt nur unverändert, wenn nichts gedruckt wurde.
+    printed = False
+    # Die for-Schleife druckt alles, was auf True steht.
+    # Diese Variante würde auch die Schlüssel (ersten Teile) des Wörterbuchs
+    # aufzählen, obwohl die Schlüssel nicht benötigt werden.
+    # for _key, (stats_text, stats_value, stats_on) in stats.items():
+    # Diese Variante ruft nur auf, was benötigt wird.
+    for stats_text, stats_value, stats_on in stats.values():
+        if stats_on:  # Wenn der Eintrag auf True gesetzt ist
+            print(f"{stats_text} in {args.path}: {stats_value}")
+            printed = True
+    if not printed:
+        print(f"Nichts gezählt in {args.path}")
 
 
-def main():
+def main() -> None:
     """
     Hauptfunktion des Skripts, die die Kommandozeilenargumente parst und die
     Zählfunktionen aufruft.
@@ -266,7 +281,7 @@ def main():
 if __name__ == "__main__":
     main()
 # Wenn das Skript als Modul importiert wird, wird die main-Funktion nicht
-# aufgerufen. Dies ermöglicht es, die Funktionen count_files und main in
+# aufgerufen. Dies ermöglicht es, die Funktionen countfiles und main in
 # anderen Skripten zu verwenden, ohne dass die main-Funktion automatisch
 # ausgeführt wird.
 # Dies ist eine gute Praxis, um die Wiederverwendbarkeit des Codes zu erhöhen.
