@@ -1,6 +1,6 @@
 """Statistiken erstellen"""
-# Funktionen für Statistikerstellung aus Betriebssystem (os = Operating System)
-import os
+
+import os  # Funktionen des Betriebssystems
 
 # Informationen ermitteln: Andere Funktionen werden die folgenden Informationen
 # später abrufen.
