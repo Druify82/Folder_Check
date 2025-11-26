@@ -31,7 +31,7 @@
 
 """
 foldercheck.py – Einsteiger-Skript für FolderCheck
-Version: 0.2.0-pre, 2025-10-08, 19:45
+Version: 0.2.0, 2025-11-26
 
 Kurzbeschreibung: Phase 2: Erste modularisierte Version
 Autor: Druify, <waschmasche@gmail.com>
